@@ -4,7 +4,7 @@ import yaml
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_file',
+    parser.add_argument('--config-file',
                         metavar='config_file',
                         help='Configuration file that defines action to perform')
 
