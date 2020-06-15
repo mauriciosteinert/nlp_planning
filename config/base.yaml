@@ -1,0 +1,6 @@
+action:
+  # valid_actions: 'download_dataset', 'preprocess_dataset']
+  execute: 'download_dataset'
+dataset:
+  folder: '../datasets/test/'
+  categories_list_file: '../datasets/test/'
