@@ -6,16 +6,20 @@ import os
 from bs4 import BeautifulSoup
 import requests
 import json
+import re
 
 class Wikihow:
     def __init__(self, folder=None):
         self.folder=folder
 
+        if os.path.exists(folder):
+            self.files_list = os.listdir(os.path.abspath(folder))
+
 
     def download(self):
         # Get list of url categories
         print("Downloading Wikihow dataset ...")
-        
+
         categories_url_list = []
         with open('./wikihow/categories_list', 'r') as file:
             line = file.readline()
@@ -86,5 +90,23 @@ class Wikihow:
                     idx += 1
 
 
+    def list_files(self):
+        for file in self.files_list:
+            print(os.path.join(os.path.abspath(self.folder), file))
 
-        return None
+
+    def process_example(self, text):
+        lines = text.split('\n')
+        lines = [l for l in lines if len(l) > 0]
+
+        entries = []
+        for line in lines:
+            if re.match('^STEP.*', line):
+                entries.append(line.split('.')[1].rstrip().lstrip() + ".")
+
+        return entries
+
+
+    def get_entry(self, file_idx):
+        with open(os.path.join(os.path.abspath(self.folder), self.files_list[file_idx]), 'r') as file:
+            return file.read()
