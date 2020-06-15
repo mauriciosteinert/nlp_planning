@@ -9,11 +9,11 @@ import json
 import re
 
 class Wikihow:
-    def __init__(self, folder=None):
-        self.folder=folder
+    def __init__(self, config):
+        self.folder=config['dataset']['folder']
 
-        if os.path.exists(folder):
-            self.files_list = os.listdir(os.path.abspath(folder))
+        if os.path.exists(self.folder):
+            self.files_list = os.listdir(os.path.abspath(self.folder))
 
 
     def download(self):
