@@ -1,6 +1,13 @@
 action:
-  # valid_actions: 'download_dataset', 'preprocess_dataset']
-  execute: 'download_dataset'
+  # valid_actions:
+  # 'download_dataset' - download WikiHow dataset based on wikihow/categories_list file
+  # 'action_identifier' - run experiment to identify action names based on word embedding similarities
+  execute: 'action_identifier'
 dataset:
   folder: '../datasets/test/'
   categories_list_file: '../datasets/test/'
+
+word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_b.bin'
+
+action_identifier:
+  keywords: ['take', 'put', 'drop', 'give']
