@@ -102,7 +102,7 @@ class Wikihow:
         entries = []
         for line in lines:
             if re.match('^STEP.*', line):
-                entries.append(line.lower().split('.')[1].rstrip().lstrip() + ".")
+                entries.append(line.lower().split('.')[1].rstrip().lstrip())
 
         return entries
 
