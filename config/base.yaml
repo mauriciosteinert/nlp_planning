@@ -11,3 +11,4 @@ word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_b.b
 
 action_identifier:
   keywords: ['take', 'put', 'drop', 'give']
+  similarity_threshold: 0.6
