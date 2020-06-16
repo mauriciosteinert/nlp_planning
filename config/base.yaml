@@ -8,7 +8,8 @@ dataset:
   categories_list_file: '../datasets/test/'
 
 word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_b.bin'
+# word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_small.bin'
 
 action_identifier:
-  keywords: ['take', 'put', 'drop', 'give']
+  keywords: ['take', 'put', 'drop', 'give', 'place']
   similarity_threshold: 0.6
