@@ -23,14 +23,15 @@ class ActionIdentifier():
 
         for sentence_list in sentences_embeddings:
             for sentence in sentence_list:
-                # Compute distance of each word to predefined keywords
+                # Compute similarity of each word to predefined keywords
                 for word in sentence:
                     distance_keyword = []
                     for keyword in keyword_embeddings:
                         if len(word[1]) == 1:
                             distance_keyword.append(float('inf'))
                         else:
-                            d = np.linalg.norm((keyword[0][0][1], word[1]))
+                            # d = np.linalg.norm((keyword[0][0][1], word[1]))
+                            d = 1.0 - self.word_embedding.model.distance(keyword[0][0][0], word[0])
                             # print(word[0], keyword[0][0][0], d)
                             distance_keyword.append(d)
                     distance.append((word[0], distance_keyword))
