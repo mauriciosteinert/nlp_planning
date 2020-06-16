@@ -16,9 +16,8 @@ def main():
         wikihow = Wikihow.Wikihow(config['dataset']['folder'])
         wikihow.download()
     elif config['action']['execute'] == 'action_identifier':
-        wikihow = Wikihow.Wikihow(config)
         action_identifier = ActionIdentifier.ActionIdentifier(config)
-        print(action_identifier.run())
+        action_identifier.run()
     else:
         print("Invalid execute parameter in config file {}".format(args.config_file))
         exit()
