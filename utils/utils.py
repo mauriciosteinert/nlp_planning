@@ -1,5 +1,6 @@
 import argparse
 import yaml
+import os
 
 
 def parse_args():
@@ -23,5 +24,5 @@ def load_config_file(config_file):
 
 
 def write_log(config, message):
-    with open(os.path.abspath(config['log_file']), 'w') as file:
+    with open(os.path.abspath(config['log_file']), 'a') as file:
         file.write(message)
