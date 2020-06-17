@@ -20,3 +20,8 @@ def load_config_file(config_file):
         exit()
 
     return yaml_file
+
+
+def write_log(config, message):
+    with open(os.path.abspath(config['log_file']), 'w') as file:
+        file.write(message)
