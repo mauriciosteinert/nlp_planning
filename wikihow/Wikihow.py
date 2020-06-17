@@ -16,6 +16,10 @@ class Wikihow:
             self.files_list = os.listdir(os.path.abspath(self.folder))
 
 
+    def __len__(self):
+        return len(self.files_list)
+
+
     def download(self):
         # Get list of url categories
         print("Downloading Wikihow dataset ...")
@@ -109,4 +113,4 @@ class Wikihow:
 
     def get_entry(self, file_idx):
         with open(os.path.join(os.path.abspath(self.folder), self.files_list[file_idx]), 'r') as file:
-            return file.read()
+            return (self.files_list[file_idx], file.read())
