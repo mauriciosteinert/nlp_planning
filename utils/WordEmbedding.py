@@ -18,10 +18,7 @@ class WordEmbedding:
 
 
     def get_distance(self, word1, word2):
-        try:
-            return (word1, word2, self.model.distance(word1, word2))
-        except KeyError:
-            return (word1, word2, 0)
+        return (word1, word2, self.model.distance(word1, word2))
 
 
     def get_sentence_embedding(self, sentence):
