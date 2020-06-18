@@ -25,6 +25,7 @@ class ActionIdentifier():
         wikihow = Wikihow.Wikihow(self.config)
         with tqdm(total=int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])) as pbar:
             statistic_list = []
+            statistic_similarity = []
             nltk_total_zero_verbs = 0
 
             for idx in range(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
@@ -53,7 +54,6 @@ class ActionIdentifier():
                     utils.write_log(self.config, "\n  >NLTK VERBS: {}".format(nltk_verbs))
 
                     embedding_verbs = []
-                    statistic_similarity = []
 
                     for token, tag in zip(sentence_tokens, sentence_tags):
                         keyword_similarity = []
