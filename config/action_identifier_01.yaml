@@ -1,0 +1,19 @@
+action:
+  # valid_actions:
+  # 'download_dataset' - download WikiHow dataset based on wikihow/categories_list file
+  # 'action_identifier' - run experiment to identify action names based on word embedding similarities
+  execute: 'action_identifier'
+dataset:
+  folder: '../datasets/wikihow/'
+
+word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_b.bin'
+# word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_small.bin'
+log_file: 'logs/action_identifier_01.txt'
+
+action_identifier:
+  keywords: ['take', 'put', 'drop', 'give', 'walk', 'move', 'pick', 'flight', 'cut', 'jump', 'eat', 'wait', 'shake', 'pull', 'push']
+  # dataset_evaluation_percent: range between 0.0 and 1.0
+  dataset_evaluation_percent: 1.0
+  similarity_threshold: 0.3
+  # add_pronoun: add pronoun at start of each NLTK sentence
+  add_pronoun: True
