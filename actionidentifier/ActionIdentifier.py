@@ -18,6 +18,8 @@ class ActionIdentifier():
         open(self.config['log_file'], 'w')
         count = 0
 
+        utils.write_log(self.config, "RUNNING CONFIGURATION: {}".format(self.config))
+
         # Create dataset object
         wikihow = Wikihow.Wikihow(self.config)
         with tqdm(total=int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])) as pbar:
