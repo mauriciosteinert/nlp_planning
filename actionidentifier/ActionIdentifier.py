@@ -25,74 +25,74 @@ class ActionIdentifier():
 
         # Create dataset object
         wikihow = Wikihow.Wikihow(self.config)
-        for pb in trange(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
-            statistic_list = []
-            statistic_similarity = []
-            nltk_total_zero_verbs = 0
 
-            for idx in range(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
-                instance = wikihow.get_entry(idx)
-                text = wikihow.process_example(instance[1])
-                utils.write_log(self.config, "\n---------------------------------------------------------------------------\n")
-                utils.write_log(self.config, "FILE: {}\n".format(instance[0]))
+        statistic_list = []
+        statistic_similarity = []
+        nltk_total_zero_verbs = 0
 
-                for sentence in text:
-                    sentences_total += 1
-                    # Tokenize
-                    sentence_tokens = nltk.word_tokenize(sentence)
+        for idx in trange(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
+            instance = wikihow.get_entry(idx)
+            text = wikihow.process_example(instance[1])
+            utils.write_log(self.config, "\n---------------------------------------------------------------------------\n")
+            utils.write_log(self.config, "FILE: {}\n".format(instance[0]))
 
-                    if self.config['action_identifier']['add_pronoun']:
-                        sentence_tokens.insert(0, 'they')
+            for sentence in text:
+                sentences_total += 1
+                # Tokenize
+                sentence_tokens = nltk.word_tokenize(sentence)
 
-                    sentence_tags = nltk.pos_tag(sentence_tokens)
+                if self.config['action_identifier']['add_pronoun']:
+                    sentence_tokens.insert(0, 'they')
 
-                    utils.write_log(self.config, "\n>SENTENCE: {}".format(sentence))
-                    utils.write_log(self.config, "\n  >NLTK TAGS: {}".format(sentence_tags))
-                    nltk_verbs = [v[0] for v in sentence_tags if v[1] in ['VB', 'VBZ', 'VBP', 'VBG']]
+                sentence_tags = nltk.pos_tag(sentence_tokens)
 
-                    if len(nltk_verbs) == 0:
-                        nltk_total_zero_verbs += 1
+                utils.write_log(self.config, "\n>SENTENCE: {}".format(sentence))
+                utils.write_log(self.config, "\n  >NLTK TAGS: {}".format(sentence_tags))
+                nltk_verbs = [v[0] for v in sentence_tags if v[1] in ['VB', 'VBZ', 'VBP', 'VBG']]
 
-                    utils.write_log(self.config, "\n  >NLTK VERBS: {}".format(nltk_verbs))
+                if len(nltk_verbs) == 0:
+                    nltk_total_zero_verbs += 1
 
-                    embedding_verbs = []
+                utils.write_log(self.config, "\n  >NLTK VERBS: {}".format(nltk_verbs))
 
-                    for token, tag in zip(sentence_tokens, sentence_tags):
-                        keyword_similarity = []
-                        for keyword in self.config['action_identifier']['keywords']:
-                            try:
-                                similarity = 1.0 - self.word_embedding.get_distance(token, keyword)[2]
-                            except KeyError:
-                                similarity = 0.0
+                embedding_verbs = []
 
-                            keyword_similarity.append(similarity)
+                for token, tag in zip(sentence_tokens, sentence_tags):
+                    keyword_similarity = []
+                    for keyword in self.config['action_identifier']['keywords']:
+                        try:
+                            similarity = 1.0 - self.word_embedding.get_distance(token, keyword)[2]
+                        except KeyError:
+                            similarity = 0.0
 
-                        mean = np.mean(keyword_similarity)
+                        keyword_similarity.append(similarity)
 
-                        if mean >= float(self.config['action_identifier']['similarity_threshold']):
-                            embedding_verbs.append((token, mean))
-                            statistic_similarity.append(mean)
+                    mean = np.mean(keyword_similarity)
 
-                    true_positive = [e[0] in nltk_verbs for e in embedding_verbs]
-                    try:
-                        true_positive = np.count_nonzero(true_positive) / len(true_positive)
-                    except ZeroDivisionError:
-                        true_positive = 0.0
+                    if mean >= float(self.config['action_identifier']['similarity_threshold']):
+                        embedding_verbs.append((token, mean))
+                        statistic_similarity.append(mean)
 
-                    false_positive = [e[0] not in nltk_verbs for e in embedding_verbs]
+                true_positive = [e[0] in nltk_verbs for e in embedding_verbs]
+                try:
+                    true_positive = np.count_nonzero(true_positive) / len(true_positive)
+                except ZeroDivisionError:
+                    true_positive = 0.0
 
-                    try:
-                        false_positive = np.count_nonzero(false_positive) / len(false_positive)
-                    except ZeroDivisionError:
-                        false_positive = 0.0
+                false_positive = [e[0] not in nltk_verbs for e in embedding_verbs]
 
-                    sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
+                try:
+                    false_positive = np.count_nonzero(false_positive) / len(false_positive)
+                except ZeroDivisionError:
+                    false_positive = 0.0
 
-                    utils.write_log(self.config, "\n  >EMBEDDING VERBS: {} TP: {} FP: {}".format(embedding_verbs, true_positive, false_positive))
+                sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
 
-                # Text statistics [true positive, false negative, mean_distance]
-                statistic_list.append([true_positive, false_positive, 0])
-                count += 1
+                utils.write_log(self.config, "\n  >EMBEDDING VERBS: {} TP: {} FP: {}".format(embedding_verbs, true_positive, false_positive))
+
+            # Text statistics [true positive, false negative, mean_distance]
+            statistic_list.append([true_positive, false_positive, 0])
+            count += 1
 
         statistic_mean = np.mean(statistic_list, axis=0)
         statistic_std = np.std(statistic_list, axis=0)
