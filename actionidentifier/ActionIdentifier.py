@@ -5,6 +5,7 @@ import numpy as np
 import nltk
 import os
 from tqdm import tqdm
+import time
 
 
 class ActionIdentifier():
@@ -18,6 +19,7 @@ class ActionIdentifier():
         open(self.config['log_file'], 'w')
         count = 0
         sentences_total = 0
+        start_time = time.time()
 
         utils.write_log(self.config, "RUNNING CONFIGURATION: {}".format(self.config))
 
@@ -97,9 +99,9 @@ class ActionIdentifier():
         statistic_std = np.std(statistic_list, axis=0)
 
         utils.write_log(self.config, "\n=======================================================================\n")
-        utils.write_log(self.config, "RESULTS")
+        utils.write_log(self.config, "RESULTS (Elapsed time: {:.4f} seconds)".format(time.time() - start_time))
         utils.write_log(self.config, "\n  Total of examples: {}".format(count))
-        utils.write_log(self.config, "\n  Total of sentences: {} - Mean per example: {:.4f} - NLTK zero verbs: {}".format(sentences_total, sentences_total / count, nltk_total_zero_verbs))
+        utils.write_log(self.config, "\n  Total of sentences: {} - Mean per example: {:.4f} - NLTK sentences with zero verbs: {} ({:.4f} %)".format(sentences_total, sentences_total / count, nltk_total_zero_verbs, nltk_total_zero_verbs / sentences_total))
         utils.write_log(self.config, "\n  Mean True Positive: {:.4f} - Std: {:.4f}".format(statistic_mean[0], statistic_std[0]))
         utils.write_log(self.config, "\n  Mean False Positive: {:.4f} - Std: {:.4f}".format(statistic_mean[1], statistic_std[1]))
         utils.write_log(self.config, "\n  Mean Similarity: {:.4f} - Std: {:.4f}".format(np.mean(statistic_similarity), np.std(statistic_similarity)))
