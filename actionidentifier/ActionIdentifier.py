@@ -46,7 +46,7 @@ class ActionIdentifier():
                     utils.write_log(self.config, "\n  >NLTK VERBS: {}".format(nltk_verbs))
 
                     embedding_verbs = []
-                    mean_distance = []
+                    statistic_similarity = []
 
                     for token, tag in zip(sentence_tokens, sentence_tags):
                         keyword_similarity = []
@@ -62,6 +62,7 @@ class ActionIdentifier():
 
                         if mean >= float(self.config['action_identifier']['similarity_threshold']):
                             embedding_verbs.append((token, mean))
+                            statistic_similarity.append(mean)
 
                     true_positive = [e[0] in nltk_verbs for e in embedding_verbs]
                     try:
@@ -69,17 +70,28 @@ class ActionIdentifier():
                     except ZeroDivisionError:
                         true_positive = 0.0
 
+                    false_positive = [e[0] not in nltk_verbs for e in embedding_verbs]
+
+                    try:
+                        false_positive = np.count_nonzero(false_positive) / len(false_positive)
+                    except ZeroDivisionError:
+                        false_positive = 0.0
+
                     sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
 
-                    utils.write_log(self.config, "\n  >EMBEDDING VERBS: {} - {}".format(embedding_verbs, true_positive))
+                    utils.write_log(self.config, "\n  >EMBEDDING VERBS: {} TP: {} FP: {}".format(embedding_verbs, true_positive, false_positive))
 
                 # Text statistics [true positive, false negative, mean_distance]
-                statistic_list.append([true_positive, 0, 0])
+                statistic_list.append([true_positive, false_positive, 0])
                 pbar.update(idx)
                 count += 1
 
         statistic_mean = np.mean(statistic_list, axis=0)
+        statistic_std = np.std(statistic_list, axis=0)
+
         utils.write_log(self.config, "\n=======================================================================\n")
         utils.write_log(self.config, "RESULTS")
         utils.write_log(self.config, "\nTotal of examples: {}".format(count))
-        utils.write_log(self.config, "\n  Mean True Positive: {}".format(statistic_mean[0]))
+        utils.write_log(self.config, "\n  Mean True Positive: {} Std: {}".format(statistic_mean[0], statistic_std[0]))
+        utils.write_log(self.config, "\n  Mean False Positive: {} Std: {}".format(statistic_mean[1], statistic_std[1]))
+        utils.write_log(self.config, "\n  Mean Similarity: {} Std: {}".format(np.mean(statistic_similarity), np.std(statistic_similarity)))
