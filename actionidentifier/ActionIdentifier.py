@@ -4,7 +4,7 @@ from wikihow import Wikihow
 import numpy as np
 import nltk
 import os
-from tqdm import tqdm
+from tqdm import trange
 import time
 
 
@@ -25,7 +25,7 @@ class ActionIdentifier():
 
         # Create dataset object
         wikihow = Wikihow.Wikihow(self.config)
-        with tqdm(total=int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])) as pbar:
+        for pb in trange(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
             statistic_list = []
             statistic_similarity = []
             nltk_total_zero_verbs = 0
@@ -92,7 +92,6 @@ class ActionIdentifier():
 
                 # Text statistics [true positive, false negative, mean_distance]
                 statistic_list.append([true_positive, false_positive, 0])
-                pbar.update(idx)
                 count += 1
 
         statistic_mean = np.mean(statistic_list, axis=0)
