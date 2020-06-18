@@ -3,6 +3,8 @@ from utils import utils
 from wikihow import Wikihow
 import numpy as np
 import nltk
+from nltk.corpus import verbnet
+
 import os
 from tqdm import trange
 import time
@@ -48,7 +50,8 @@ class ActionIdentifier():
 
                 utils.write_log(self.config, "\n>SENTENCE: {}".format(sentence))
                 utils.write_log(self.config, "\n  >NLTK TAGS: {}".format(sentence_tags))
-                nltk_verbs = [v[0] for v in sentence_tags if v[1] in ['VB', 'VBZ', 'VBP', 'VBG']]
+
+                nltk_verbs = [v[0] for v in sentence_tags if len(verbnet.classids(v[0])) > 0]
 
                 if len(nltk_verbs) == 0:
                     nltk_total_zero_verbs += 1
