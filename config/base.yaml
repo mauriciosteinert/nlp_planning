@@ -4,12 +4,15 @@ action:
   # 'action_identifier' - run experiment to identify action names based on word embedding similarities
   execute: 'action_identifier'
 dataset:
-  folder: '../datasets/test/'
-  categories_list_file: '../datasets/test/'
+  # folder: '../datasets/test/'
+  folder: '../datasets/wikihow/'
 
 word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_b.bin'
 # word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_small.bin'
+log_file: 'logs/results.txt'
 
 action_identifier:
-  keywords: ['take', 'put', 'drop', 'give', 'place']
-  similarity_threshold: 0.6
+  keywords: ['take', 'put', 'drop', 'give', 'place', 'walk', 'move', 'pick', 'seal', 'use', 'pour', 'grind', 'lock', 'store', 'mix']
+  dataset_evaluation_percent: 0.05
+  similarity_threshold: 0.4
+  add_pronoun: True

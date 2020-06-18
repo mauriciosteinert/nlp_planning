@@ -19,7 +19,10 @@ class ActionIdentifier():
         # Create dataset object
         wikihow = Wikihow.Wikihow(self.config)
 
-        for idx in range(2):
+        print("Length: {}".format(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])))
+        statistic_list = []
+
+        for idx in range(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
             instance = wikihow.get_entry(idx)
             text = wikihow.process_example(instance[1])
             utils.write_log(self.config, "\n---------------------------------------------------------------------------\n")
@@ -40,6 +43,8 @@ class ActionIdentifier():
                 utils.write_log(self.config, "\n  >NLTK VERBS: {}".format(nltk_verbs))
 
                 embedding_verbs = []
+                mean_distance = []
+
                 for token, tag in zip(sentence_tokens, sentence_tags):
                     keyword_similarity = []
                     for keyword in self.config['action_identifier']['keywords']:
@@ -55,12 +60,21 @@ class ActionIdentifier():
                     if mean >= float(self.config['action_identifier']['similarity_threshold']):
                         embedding_verbs.append((token, mean))
 
-                    true_positive = [e[0] in nltk_verbs for e in embedding_verbs]
-                    sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
+                true_positive = [e[0] in nltk_verbs for e in embedding_verbs]
+                try:
+                    true_positive = np.count_nonzero(true_positive) / len(true_positive)
+                except ZeroDivisionError:
+                    true_positive = 0.0
+
+                sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
+
                 utils.write_log(self.config, "\n  >EMBEDDING VERBS: {} - {}".format(embedding_verbs, true_positive))
 
             # Text statistics [true positive, false negative, mean_distance]
+            statistic_list.append([true_positive, 0, 0])
 
-
-
-        return None
+        statistic_mean = np.mean(statistic_list, axis=0)
+        utils.write_log(self.config, "\n=======================================================================\n")
+        utils.write_log(self.config, "RESULTS")
+        utils.write_log(self.config, "\nTotal of examples: {}".format(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])))
+        utils.write_log(self.config, "\n  Mean True Positive: {}".format(statistic_mean[0]))
