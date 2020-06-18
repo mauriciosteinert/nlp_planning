@@ -17,6 +17,7 @@ class ActionIdentifier():
         print("Performing action identifier experiment ...")
         open(self.config['log_file'], 'w')
         count = 0
+        sentences_total = 0
 
         utils.write_log(self.config, "RUNNING CONFIGURATION: {}".format(self.config))
 
@@ -24,6 +25,7 @@ class ActionIdentifier():
         wikihow = Wikihow.Wikihow(self.config)
         with tqdm(total=int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])) as pbar:
             statistic_list = []
+            nltk_total_zero_verbs = 0
 
             for idx in range(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
                 instance = wikihow.get_entry(idx)
@@ -32,6 +34,7 @@ class ActionIdentifier():
                 utils.write_log(self.config, "FILE: {}\n".format(instance[0]))
 
                 for sentence in text:
+                    sentences_total += 1
                     # Tokenize
                     sentence_tokens = nltk.word_tokenize(sentence)
 
@@ -43,6 +46,10 @@ class ActionIdentifier():
                     utils.write_log(self.config, "\n>SENTENCE: {}".format(sentence))
                     utils.write_log(self.config, "\n  >NLTK TAGS: {}".format(sentence_tags))
                     nltk_verbs = [v[0] for v in sentence_tags if v[1] in ['VB', 'VBZ', 'VBP', 'VBG']]
+
+                    if len(nltk_verbs) == 0:
+                        nltk_total_zero_verbs += 1
+
                     utils.write_log(self.config, "\n  >NLTK VERBS: {}".format(nltk_verbs))
 
                     embedding_verbs = []
@@ -91,7 +98,8 @@ class ActionIdentifier():
 
         utils.write_log(self.config, "\n=======================================================================\n")
         utils.write_log(self.config, "RESULTS")
-        utils.write_log(self.config, "\nTotal of examples: {}".format(count))
-        utils.write_log(self.config, "\n  Mean True Positive: {} Std: {}".format(statistic_mean[0], statistic_std[0]))
-        utils.write_log(self.config, "\n  Mean False Positive: {} Std: {}".format(statistic_mean[1], statistic_std[1]))
-        utils.write_log(self.config, "\n  Mean Similarity: {} Std: {}".format(np.mean(statistic_similarity), np.std(statistic_similarity)))
+        utils.write_log(self.config, "\n  Total of examples: {}".format(count))
+        utils.write_log(self.config, "\n  Total of sentences: {} - Mean per example: {:.4f} - NLTK zero verbs: {}".format(sentences_total, sentences_total / count, nltk_total_zero_verbs))
+        utils.write_log(self.config, "\n  Mean True Positive: {:.4f} - Std: {:.4f}".format(statistic_mean[0], statistic_std[0]))
+        utils.write_log(self.config, "\n  Mean False Positive: {:.4f} - Std: {:.4f}".format(statistic_mean[1], statistic_std[1]))
+        utils.write_log(self.config, "\n  Mean Similarity: {:.4f} - Std: {:.4f}".format(np.mean(statistic_similarity), np.std(statistic_similarity)))
