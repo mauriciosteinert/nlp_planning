@@ -16,7 +16,7 @@ class Wikihow:
             self.files_list = os.listdir(os.path.abspath(self.folder))
 
 
-    def __len__(self):
+    def get_length(self):
         return len(self.files_list)
 
 
