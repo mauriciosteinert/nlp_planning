@@ -6,14 +6,12 @@ action:
 dataset:
   folder: '../datasets/wikihow/'
 
-word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_b.bin'
-# word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_small.bin'
-log_file: 'logs/report_full.txt'
+# word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_b.bin'
+word_embedding_dict: '../datasets/word_vectors/enwiki_word2vec_20200501_d100_small.bin'
+log_file: 'logs/report_full2.txt'
 
 action_identifier:
   keywords: ['take', 'put', 'drop', 'give', 'place', 'walk', 'move', 'pick', 'seal', 'use', 'pour', 'grind', 'lock', 'store', 'mix']
   # dataset_evaluation_percent: range between 0.0 and 1.0
-  dataset_evaluation_percent: 1.0
+  dataset_evaluation_percent: 0.04
   similarity_threshold: 0.4
-  # add_pronoun: add pronoun at start of each NLTK sentence
-  add_pronoun: True

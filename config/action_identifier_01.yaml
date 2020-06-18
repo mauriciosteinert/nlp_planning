@@ -15,5 +15,3 @@ action_identifier:
   # dataset_evaluation_percent: range between 0.0 and 1.0
   dataset_evaluation_percent: 1.0
   similarity_threshold: 0.3
-  # add_pronoun: add pronoun at start of each NLTK sentence
-  add_pronoun: True
