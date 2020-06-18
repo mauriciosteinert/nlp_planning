@@ -42,10 +42,6 @@ class ActionIdentifier():
                 sentences_total += 1
                 # Tokenize
                 sentence_tokens = nltk.word_tokenize(sentence)
-
-                if self.config['action_identifier']['add_pronoun']:
-                    sentence_tokens.insert(0, 'they')
-
                 sentence_tags = nltk.pos_tag(sentence_tokens)
 
                 utils.write_log(self.config, "\n>SENTENCE: {}".format(sentence))
