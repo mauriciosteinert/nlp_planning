@@ -32,8 +32,14 @@ class ActionIdentifier():
         statistic_list = []
         statistic_similarity = []
         ground_truth_count = 0
+        dataset_length = int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])
 
-        for idx in trange(int(wikihow.get_length() * self.config['action_identifier']['dataset_evaluation_percent'])):
+        if dataset_length < 1:
+            print("No examples to process in dataset. Aborting ...")
+            return
+
+
+        for idx in trange(dataset_length):
             instance = wikihow.get_entry(idx)
             text = wikihow.process_example(instance[1])
             utils.write_log(self.config, "\n---------------------------------------------------------------------------\n")
@@ -85,33 +91,53 @@ class ActionIdentifier():
                         statistic_similarity.append(mean)
 
                 true_positive = [e[0] in ground_truth_verbs for e in embedding_verbs]
-                try:
-                    true_positive = np.count_nonzero(true_positive) / len(true_positive)
-                except ZeroDivisionError:
-                    true_positive = 0.0
+                true_positive = np.count_nonzero(true_positive)
 
                 false_positive = [e[0] not in ground_truth_verbs for e in embedding_verbs]
+                false_positive = np.count_nonzero(false_positive)
 
-                try:
-                    false_positive = np.count_nonzero(false_positive) / len(false_positive)
-                except ZeroDivisionError:
-                    false_positive = 0.0
+                false_negative = [e[0] not in embedding_verbs for e in ground_truth_verbs]
+                false_negative = np.count_nonzero(false_negative)
 
                 sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
 
-                utils.write_log(self.config, "\n  >EMBEDDING VERBS: {} TP: {} FP: {}".format(embedding_verbs, true_positive, false_positive))
+                utils.write_log(self.config, "\n  >EMBEDDING VERBS: {}".format(embedding_verbs))
 
-            # Text statistics [true positive, false negative, mean_distance]
-            statistic_list.append([true_positive, false_positive, 0])
+                # Text statistics [true positive, false negative, precision, recall, f-score]
+                try:
+                    precision = true_positive / (true_positive + false_positive)
+                except ZeroDivisionError:
+                    precision = 0.0
+
+                try:
+                    recall = true_positive / (true_positive + false_negative)
+                except ZeroDivisionError:
+                    recall = 0.0
+
+                try:
+                    f_score = 2 * (recall * precision) / (recall + precision)
+                except ZeroDivisionError:
+                    f_score = 0.0
+
+                utils.write_log(self.config, "\n  >TP: {} FP: {} FN: {} Precision: {} Recall: {} F-Score: {}".format(true_positive, false_positive, false_negative, precision, recall, f_score))
+                statistic_list.append([true_positive, false_positive, false_negative, precision, recall, f_score])
             count += 1
 
+        print("Calculating statistics ...")
         statistic_mean = np.mean(statistic_list, axis=0)
         statistic_std = np.std(statistic_list, axis=0)
 
         utils.write_log(self.config, "\n=======================================================================\n")
         utils.write_log(self.config, "RESULTS (Elapsed time: {:.4f} seconds)".format(time.time() - start_time))
         utils.write_log(self.config, "\n  Total of examples: {}".format(count))
-        utils.write_log(self.config, "\n  Total of sentences: {} - Mean per example: {:.4f} - Ground-truth sentences with zero verbs: {} ({:.4f} %)".format(sentences_total, sentences_total / count, ground_truth_count, ground_truth_count / sentences_total))
+        utils.write_log(self.config, "\n  Total of sentences: {} - Mean per example: {:.4f} - Ground-truth sentences with zero verbs: {} ({:.4f} %)".format(sentences_total, \
+                            sentences_total / count, ground_truth_count, ground_truth_count / sentences_total))
         utils.write_log(self.config, "\n  Mean True Positive: {:.4f} - Std: {:.4f}".format(statistic_mean[0], statistic_std[0]))
         utils.write_log(self.config, "\n  Mean False Positive: {:.4f} - Std: {:.4f}".format(statistic_mean[1], statistic_std[1]))
+        utils.write_log(self.config, "\n  Mean False Negative: {:.4f} - Std: {:.4f}".format(statistic_mean[2], statistic_std[2]))
         utils.write_log(self.config, "\n  Mean Similarity: {:.4f} - Std: {:.4f}".format(np.mean(statistic_similarity), np.std(statistic_similarity)))
+        utils.write_log(self.config, "\n  Mean Precision: {:.4f} - Recall: {:.4f} - F-Score: {:.4f}".format(
+            statistic_mean[3], statistic_mean[4], statistic_mean[5]))
+
+        for e in statistic_list:
+            print(e[3], e[4], e[5])
