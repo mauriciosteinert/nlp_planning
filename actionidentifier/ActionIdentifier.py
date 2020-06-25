@@ -138,6 +138,3 @@ class ActionIdentifier():
         utils.write_log(self.config, "\n  Mean Similarity: {:.4f} - Std: {:.4f}".format(np.mean(statistic_similarity), np.std(statistic_similarity)))
         utils.write_log(self.config, "\n  Mean Precision: {:.4f} - Recall: {:.4f} - F-Score: {:.4f}".format(
             statistic_mean[3], statistic_mean[4], statistic_mean[5]))
-
-        for e in statistic_list:
-            print(e[3], e[4], e[5])
