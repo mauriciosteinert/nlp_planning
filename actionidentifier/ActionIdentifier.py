@@ -96,7 +96,10 @@ class ActionIdentifier():
                 false_positive = [e[0] not in ground_truth_verbs for e in embedding_verbs]
                 false_positive = np.count_nonzero(false_positive)
 
-                false_negative = [e[0] not in embedding_verbs for e in ground_truth_verbs]
+                embedding_verbs_words = [str(e[0]) for e in embedding_verbs]
+                ground_truth_verbs = [str(e) for e in ground_truth_verbs]
+
+                false_negative = [e not in embedding_verbs_words for e in ground_truth_verbs]
                 false_negative = np.count_nonzero(false_negative)
 
                 sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
