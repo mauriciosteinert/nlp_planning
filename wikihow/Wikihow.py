@@ -114,3 +114,10 @@ class Wikihow:
     def get_entry(self, file_idx):
         with open(os.path.join(os.path.abspath(self.folder), self.files_list[file_idx]), 'r') as file:
             return (self.files_list[file_idx], file.read())
+
+
+    def get_statistics(self):
+        print("Generating dataset statistics information ...")
+        for file in self.files_list:
+            text = open(os.path.join(os.path.abspath(self.folder), file), 'r').read()
+            print(text)
