@@ -38,6 +38,7 @@ class ActionIdentifier():
             print("No examples to process in dataset. Aborting ...")
             return
 
+        verbs = []
 
         for idx in trange(dataset_length):
             instance = wikihow.get_entry(idx)
@@ -87,20 +88,43 @@ class ActionIdentifier():
                     mean = np.mean(keyword_similarity)
 
                     if mean >= float(self.config['action_identifier']['similarity_threshold']):
-                        embedding_verbs.append((token, mean))
+                        embedding_verbs.append((str(token), mean))
                         statistic_similarity.append(mean)
+                        verbs.append(token)
 
-                true_positive = [e[0] in ground_truth_verbs for e in embedding_verbs]
-                true_positive = np.count_nonzero(true_positive)
+                ground_truth_set = {str(v) for v in ground_truth_verbs}
+                print("Ground truth set: ", ground_truth_set)
 
-                false_positive = [e[0] not in ground_truth_verbs for e in embedding_verbs]
-                false_positive = np.count_nonzero(false_positive)
+                embedding_verbs_set = {str(v[0]) for v in embedding_verbs}
+                print("Embedding set: ", embedding_verbs_set)
 
-                embedding_verbs_words = [str(e[0]) for e in embedding_verbs]
-                ground_truth_verbs = [str(e) for e in ground_truth_verbs]
+                true_positive = embedding_verbs_set.intersection(ground_truth_set)
+                print("True positive: ", true_positive)
 
-                false_negative = [e not in embedding_verbs_words for e in ground_truth_verbs]
-                false_negative = np.count_nonzero(false_negative)
+                false_positive = embedding_verbs_set.difference(ground_truth_set)
+                print("False positive: ", false_positive)
+
+                false_negative = ground_truth_set.difference(embedding_verbs_set.intersection(ground_truth_set))
+                print("False negative: ", false_negative)
+
+                # false_negative
+
+                # true_positive = [e[0] in ground_truth_verbs for e in embedding_verbs]
+                # true_positive = np.count_nonzero(true_positive)
+                #
+                # false_positive = [e[0] not in ground_truth_verbs for e in embedding_verbs]
+                # false_positive = np.count_nonzero(false_positive)
+                #
+                # true_negative = []
+                # false_negative = np.count_nonzero(true_negative)
+                #
+                # false_negative = [e not in embedding_verbs for e in ground_truth_verbs]
+                # false_negative = np.count_nonzero(false_negative)
+
+
+                true_positive = len(true_positive)
+                false_positive = len(false_positive)
+                false_negative = len(false_negative)
 
                 sentence_entry = (token, tag, self.word_embedding.get_word_vector(token), keyword_similarity, mean)
 
@@ -141,3 +165,13 @@ class ActionIdentifier():
         utils.write_log(self.config, "\n  Mean Similarity: {:.4f} - Std: {:.4f}".format(np.mean(statistic_similarity), np.std(statistic_similarity)))
         utils.write_log(self.config, "\n  Mean Precision: {:.4f} - Recall: {:.4f} - F-Score: {:.4f}".format(
             statistic_mean[3], statistic_mean[4], statistic_mean[5]))
+
+
+
+        # flatten = lambda l: [item for sublist in l for item in sublist]
+        #
+        # verbs = flatten(verbs)
+        verbs = [str(v) for v in verbs]
+
+        import pandas as pd
+        df = pd.DataFrame(verbs)[0].value_counts().to_csv(self.config['log_file'] + "-dataframe")
